@@ -846,7 +846,11 @@ h4 {
   .section {
     padding: 7rem 3rem;
   }
-  .section--sign-up {
-    font-size: 1rem;
+  .section--sign-up .btn {
+    font-size: 1.25rem;
+    padding: 2rem 4rem;
+  }
+  .modal {
+    padding: 3rem 4rem;
   }
 }
