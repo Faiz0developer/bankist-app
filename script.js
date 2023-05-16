@@ -46,7 +46,7 @@ h1.lastElementChild.style.color = "white";
 const message = document.createElement("div");
 message.classList.add("cookie-message");
 message.innerHTML =
-  'We use cookies for improved functionality and analytics. <button class="btn btn--close-cookie">Git it!</button>';
+  'We use cookies for improved functionality and analytics. <button class="btn btn--close-cookie">Got it!</button>';
 header.append(message);
 
 document.querySelector(".btn--close-cookie").addEventListener("click", () => {
@@ -56,7 +56,7 @@ document.querySelector(".btn--close-cookie").addEventListener("click", () => {
 message.style.backgroundColor = "#37383d";
 message.style.width = "120%";
 message.style.height =
-  Number.parseFloat(getComputedStyle(message).height, 10) + 10 + "px";
+  Number.parseFloat(getComputedStyle(message).height, 10) + 30 + "px";
 
 // BUTTON_SCROLLING
 btnScrollTo.addEventListener("click", (e) => {
@@ -108,13 +108,65 @@ nav.addEventListener("mouseout", handleHover.bind(1));
 
 // STICKY_NAVIGATION
 // i)
-const initailCoords = section1.getBoundingClientRect();
-window.addEventListener("scroll", function () {
-  if (this.window.scrollY > initailCoords.top) nav.classList.add("sticky");
+// const initailCoords = section1.getBoundingClientRect();
+// window.addEventListener("scroll", function () {
+//   if (this.window.scrollY > initailCoords.top) nav.classList.add("sticky");
+//   else nav.classList.remove("sticky");
+// });
+
+// ii) Intersection Observer API:
+const navHeight = nav.getBoundingClientRect().height;
+const stickyNav = function (entries) {
+  const [entry] = entries;
+  if (!entry.isIntersecting) nav.classList.add("sticky");
   else nav.classList.remove("sticky");
+};
+
+const headerObserver = new IntersectionObserver(stickyNav, {
+  root: null,
+  threshold: 0,
+  rootMargin: `-${navHeight}px`,
+});
+headerObserver.observe(header);
+
+// ANIMATING_SECTIONS
+const allSections = document.querySelectorAll(".section");
+
+const animatingSection = (entries, observer) => {
+  const [entry] = entries;
+  if (!entry.isIntersecting) return;
+
+  entry.target.classList.remove("section--hidden");
+  observer.unobserve(entry.target);
+};
+
+const sectionObserver = new IntersectionObserver(animatingSection, {
+  root: null,
+  threshold: 0.15,
+});
+allSection.forEach((section) => {
+  sectionObserver.observe(section);
+  section.classList.add("section--hidden");
 });
 
-// ii) Intersection API
+// LAZY_LOADING_IMAGES
+const imgTargets = document.querySelectorAll("img[data-src]");
+
+const loading = (entries, observer) => {
+  const [entry] = entries;
+  entry.target.src = entry.target.dataset.src;
+  entry.target.addEventListener("load", function () {
+    entry.target.classList.remove("lazy-img");
+  });
+  observer.unobserve(entry.target);
+};
+
+const imgObsrever = new IntersectionObserver(loading, {
+  root: null,
+  threshold: 0,
+  rootMargin: "200px",
+});
+imgTargets.forEach((img) => imgObsrever.observe(img));
 
 // SLIDER
 const slider = () => {
@@ -205,3 +257,24 @@ const slider = () => {
 };
 
 slider();
+
+// MOBILE_NAV
+const navImg = document.querySelector(".nav__logo");
+const navLinks = document.querySelector(".nav__links");
+
+const navHiddenClass = document.querySelector(".nav__links");
+navImg.addEventListener("click", function (e) {
+  if (navHiddenClass.classList.contains("nav__links--hidden")) {
+    navHiddenClass.classList.remove("nav__links--hidden");
+    nav.style.height = "70%";
+  } else {
+    navHiddenClass.classList.add("nav__links--hidden");
+    nav.style.height = "20%";
+  }
+});
+
+navLinks.addEventListener("click", (e) => {
+  if (e.target.classList.contains("nav__link")) {
+    navHiddenClass.classList.add("nav__links--hidden");
+  }
+});
